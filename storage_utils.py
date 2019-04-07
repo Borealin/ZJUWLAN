@@ -1,3 +1,4 @@
+# -*- coding:utf-8 -*-
 def get_auth():
     if check_storage():
         return read_config()

@@ -1,3 +1,4 @@
+# -*- coding:utf-8 -*-
 import binascii
 import os
 import re

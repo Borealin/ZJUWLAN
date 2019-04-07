@@ -1,3 +1,4 @@
+# -*- coding:utf-8 -*-
 import wifi_utils
 import login_utils
 connect_status = wifi_utils.check_connection()
