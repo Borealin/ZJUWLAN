@@ -35,13 +35,21 @@ def check_wifi_connection():
 
 
 def connect_to_wifi(ssid, password=None):
-    try:
-        f = open('{}.xml', 'r'.format(ssid))
-        f.close()
-    except IOError:
-        create_profile(ssid, password)
-    os.system('netsh wlan add profile filename=\"{}.xml\"'.format(ssid))
-    os.system('netsh wlan connect name={0} ssid={0}'.format(ssid))
+    ifprofile = False
+    cmdlines = os.popen('netsh wlan show profiles', 'r', 1).read()
+    profiles = re.findall(r'(.*): (.*)\n', cmdlines)
+    for profile in profiles:
+        if profile[1] == ssid:
+            ifprofile = True
+    if not ifprofile:
+        try:
+            f = open('{}.xml', 'r'.format(ssid))
+            f.close()
+        except IOError:
+            create_profile(ssid, password)
+        os.popen('netsh wlan add profile filename=\"{}.xml\"'.format(ssid))
+    os.popen('netsh wlan connect name={0} ssid={0}'.format(ssid))
+    time.sleep(2)
     return
 
 
@@ -71,9 +79,10 @@ def check_connection():
     elif wifi_name == '':
         return False
     else:
-        print('您尚未连接至ZJUWLAN\n正在连接至ZJUWLAN')
-        time.sleep(5)
+        print('您已连接至其他网络\n正在连接至ZJUWLAN')
         connect_to_ZJUWLAN()
+        time.sleep(3)
+        return check_connection()
 
 
 def create_profile(ssid, password):
