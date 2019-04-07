@@ -1,4 +1,8 @@
 # -*- coding:utf-8 -*-
+import encrypt_utils
+
+split_text = '+-*/bor/*-+'
+
 def get_auth():
     if check_storage():
         return read_config()
@@ -17,10 +21,12 @@ def check_storage():
 
 
 def read_config():
-    f = open('config', 'r')
-    name = f.readline()
-    password = f.readline()
+    f = open('config', 'rb')
+    nonce, ciphertext, tag = [f.read(x) for x in (16, 64, -1)]
     f.close()
+    data = str(encrypt_utils.decrypt(nonce, ciphertext, tag), 'utf-8')
+    data = data.rstrip(' ')
+    name, password = data.split(split_text)
     return {
         'name': name,
         'pass': password
@@ -28,17 +34,15 @@ def read_config():
 
 
 def build_config():
-    auth = enter_id_pass()
-    f = open('config', 'w')
-    f.write(auth['name'] + '\n')
-    f.write(auth['pass'])
+    name, password = enter_id_pass()
+    data = name+split_text+password
+    f = open('config', 'wb')
+    nonce, ciphertext, tag = encrypt_utils.encrypt(bytes(data.encode('utf-8')))
+    [f.write(x) for x in (nonce, ciphertext, tag)]
     f.close()
 
 
 def enter_id_pass():
     name = input("请输入学号")
     password = input("请输入校园网密码")
-    return {
-        'name': name,
-        'pass': password
-    }
+    return name, password
