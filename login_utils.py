@@ -26,7 +26,7 @@ def login(username, password):
     status_code = result['code']
     text = result['text']
     if status_code != 200:
-        print('please check your connection')
+        print('请检查是否开启全局代理或更改了DNS')
         return
     else:
         login_ok = re.match('login_ok', text)
@@ -34,14 +34,14 @@ def login(username, password):
         ip_exception = re.match('E2833', text)
         wrong_password = re.match('E2901', text)
         if login_ok is not None:
-            print('successful login')
+            print('成功登陆')
         elif interval is not None:
             time.sleep(8)
             login(username, password)
         elif ip_exception is not None:
-            print('please use l2tp to connect')
+            print('有线网请不要使用net.zju.edu.cn登陆')
         elif wrong_password is not None:
-            print('请重新输入密码')
+            print('密码错误请重新输入密码')
             storage_utils.build_config()
             time.sleep(8)
             instant_login()
@@ -55,7 +55,6 @@ def url_login(username, passwd):
     try:
         response = s.post(login_url, data=data, headers=header)
     except ConnectionError:
-        print('please connect to ZJUWLAN')
         return {
             'code': 0,
             'text': ''
