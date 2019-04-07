@@ -3,6 +3,7 @@ import encrypt_utils
 
 split_text = '+-*/bor/*-+'
 
+
 def get_auth():
     if check_storage():
         return read_config()
@@ -24,8 +25,7 @@ def read_config():
     f = open('config', 'rb')
     nonce, ciphertext, tag = [f.read(x) for x in (16, 64, -1)]
     f.close()
-    data = str(encrypt_utils.decrypt(nonce, ciphertext, tag), 'utf-8')
-    data = data.rstrip(' ')
+    data = encrypt_utils.decrypt(nonce, ciphertext, tag)
     name, password = data.split(split_text)
     return {
         'name': name,
@@ -35,9 +35,9 @@ def read_config():
 
 def build_config():
     name, password = enter_id_pass()
-    data = name+split_text+password
+    data = name + split_text + password
     f = open('config', 'wb')
-    nonce, ciphertext, tag = encrypt_utils.encrypt(bytes(data.encode('utf-8')))
+    nonce, ciphertext, tag = encrypt_utils.encrypt(data)
     [f.write(x) for x in (nonce, ciphertext, tag)]
     f.close()
 
