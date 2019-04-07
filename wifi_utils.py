@@ -20,7 +20,7 @@ def check_wifi_connection():
     cmdlines = rawcmdlines.read()
     status = re.search(r'状态(.*):(.*)\n', cmdlines)
     if status.group().find('断开') != -1:
-        software_status = re.search(r'软件(.*)\n',cmdlines)
+        software_status = re.search(r'软件(.*)\n', cmdlines)
         if software_status.group().find('关') != -1:
             print('请打开WiFi')
             return False
@@ -124,5 +124,6 @@ def create_profile(ssid, password):
 {sharedKey}
 		</security>
 	</MSM>
-</WLANProfile>'''.format(hexssid=hexssid.decode('utf-8'), ssid=ssid, authEncryption=authEncryption,sharedKey=sharedKey))
+</WLANProfile>'''.format(hexssid=hexssid.decode('utf-8'), ssid=ssid, authEncryption=authEncryption,
+                         sharedKey=sharedKey))
     f.close()
