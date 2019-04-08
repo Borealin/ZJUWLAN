@@ -45,7 +45,6 @@ def login(username, password):  # 登陆net.zju.edu.cn并处理返回的异常
         elif wrong_password is not None:
             print('密码错误请重新输入密码')
             storage_utils.build_config()
-            time.sleep(8)
             instant_login()
 
 
