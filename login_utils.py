@@ -1,5 +1,6 @@
 # -*- coding:utf-8 -*-
 import re
+import subprocess
 import time
 import requests
 import requests.exceptions
@@ -66,6 +67,22 @@ def url_login(username, passwd):  # post登陆表单
     }
 
 
+url_list = ['baidu.com', 'qq.com', 'alipay.com']
+
+
+def check_login_status():
+    status_list = []
+    for url in url_list:
+        status_list.append(subprocess.call(u'ping -n 1 -w 1 {}'.format(url),  stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT))
+    for status in status_list:
+        if status == 0:
+            return True
+    return False
+
+
 def instant_login():  # 立即登陆
-    auth = storage_utils.get_auth()
-    login(auth['name'], auth['pass'])
+    if not check_login_status():
+        auth = storage_utils.get_auth()
+        login(auth['name'], auth['pass'])
+    else:
+        print('您已登陆ZJUWLAN')
