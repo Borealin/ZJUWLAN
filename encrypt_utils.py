@@ -6,25 +6,25 @@ import pickle
 key_file = 'key'
 
 
-def key_init():
+def key_init():  # 获取随机16位密钥
     key = get_random_bytes(16)
     return key
 
 
-def read_key():
+def read_key():  # 从已有的文件中获取密钥
     f = open(key_file, 'rb')
     key = pickle.load(f)
     f.close()
     return key
 
 
-def write_key(key):
+def write_key(key):  # 写入密钥
     f = open(key_file, 'wb')
     pickle.dump(key, f)
     f.close()
 
 
-def get_key():
+def get_key():  # 获取密钥
     try:
         key = read_key()
     except IOError:
@@ -33,7 +33,7 @@ def get_key():
     return key
 
 
-def check_key():
+def check_key():  # 检查并获取密钥
     try:
         key = read_key()
         return key
@@ -43,7 +43,7 @@ def check_key():
         return check_key()
 
 
-def encrypt(data):
+def encrypt(data):  # 加密文本
     key = get_key()
     data = bytes(data, 'utf-8')
     while len(data) % 64 != 0:
@@ -54,7 +54,7 @@ def encrypt(data):
     return nonce, ciphertext, tag
 
 
-def decrypt(nonce, ciphertext, tag):
+def decrypt(nonce, ciphertext, tag):  # 解密文本
     key = check_key()
     cipher = AES.new(key, AES.MODE_EAX, nonce)
     data = cipher.decrypt_and_verify(ciphertext, tag)
