@@ -5,7 +5,7 @@ import re
 import time
 
 
-def wifi_search():
+def wifi_search():  # 获取当前可搜索到的WiFi列表
     wifilist = []
     rawcmdlines = os.popen('netsh wlan show networks', 'r', 1)
     cmdlines = rawcmdlines.read()
@@ -15,16 +15,16 @@ def wifi_search():
     return wifilist
 
 
-def check_wifi_connection():
+def check_wifi_connection():  # 检查WiFi状态
     rawcmdlines = os.popen('netsh wlan show interfaces', 'r', 1)
     cmdlines = rawcmdlines.read()
     status = re.search(r'状态(.*):(.*)\n', cmdlines)
-    if status.group().find('断开') != -1:
+    if status.group().find('断开') != -1:  # WiFi未连接
         software_status = re.search(r'软件(.*)\n', cmdlines)
-        if software_status.group().find('关') != -1:
+        if software_status.group().find('关') != -1:  # WiFi开关已关闭
             print('请打开WiFi')
             return False
-        else:
+        else:  # WiFi开关已开但尚未连接至任一WiFi
             connect_to_ZJUWLAN()
             return check_wifi_connection()
     elif status.group().find('已连接') != -1:
@@ -34,14 +34,14 @@ def check_wifi_connection():
         return False
 
 
-def connect_to_wifi(ssid, password=None):
+def connect_to_wifi(ssid, password=None):  # 连接至指定ssid和密码的WiFi
     ifprofile = False
     cmdlines = os.popen('netsh wlan show profiles', 'r', 1).read()
     profiles = re.findall(r'(.*): (.*)\n', cmdlines)
-    for profile in profiles:
+    for profile in profiles:  # 检查是否曾经连接过该ssid的WiFi
         if profile[1] == ssid:
             ifprofile = True
-    if not ifprofile:
+    if not ifprofile:  # 未连接过该ssid的WiFi，创建并添加profile
         try:
             f = open('{}.xml', 'r'.format(ssid))
             f.close()
@@ -53,7 +53,7 @@ def connect_to_wifi(ssid, password=None):
     return
 
 
-def get_wifi_name():
+def get_wifi_name():  # 获取当前已连接WiFi的ssid
     if check_wifi_connection():
         cmdlines = os.popen('netsh wlan show interfaces', 'r', 1).read()
         ssid = re.findall(r'SSID(.*): (.*)\n', cmdlines)
@@ -62,7 +62,7 @@ def get_wifi_name():
         return ''
 
 
-def connect_to_ZJUWLAN():
+def connect_to_ZJUWLAN():  # 连接至ZJUWLAN
     wifi_list = wifi_search()
     for wifi_name in wifi_list:
         if wifi_name == 'ZJUWLAN':
@@ -72,7 +72,7 @@ def connect_to_ZJUWLAN():
     return False
 
 
-def check_connection():
+def check_connection():  # 检查当前是否已连接至ZJUWLAN
     wifi_name = get_wifi_name()
     if wifi_name == 'ZJUWLAN':
         return True
@@ -85,7 +85,7 @@ def check_connection():
         return check_connection()
 
 
-def create_profile(ssid, password):
+def create_profile(ssid, password):  # 创建profile
     hexssid = binascii.hexlify(ssid.encode("utf8")).upper()
     f = open('{}.xml'.format(ssid), 'w')
     authEncryption = '''
