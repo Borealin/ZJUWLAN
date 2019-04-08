@@ -1,6 +1,4 @@
 # -*- coding:utf-8 -*-
-import os
-
 import encrypt_utils
 
 split_text = '+-*/bor/*-+'  # 储存学号和密码时的分隔符

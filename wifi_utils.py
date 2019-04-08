@@ -1,23 +1,23 @@
 # -*- coding:utf-8 -*-
 import binascii
-import os
 import re
+import subprocess
 import time
 
 
 def wifi_search():  # 获取当前可搜索到的WiFi列表
     wifilist = []
-    rawcmdlines = os.popen('netsh wlan show networks', 'r', 1)
-    cmdlines = rawcmdlines.read()
+    rawcmdlines = subprocess.Popen('netsh wlan show networks', stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    cmdlines = rawcmdlines.stdout.read().decode("GBK", "ignore")
     cells = re.findall(r'SSID(.*): (.*)\n', cmdlines)
     for cell in cells:
-        wifilist.append(cell[1])
+        wifilist.append(cell[1].rstrip('\r'))
     return wifilist
 
 
 def check_wifi_connection():  # 检查WiFi状态
-    rawcmdlines = os.popen('netsh wlan show interfaces', 'r', 1)
-    cmdlines = rawcmdlines.read()
+    rawcmdlines = subprocess.Popen('netsh wlan show interfaces', stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    cmdlines = rawcmdlines.stdout.read().decode("GBK", "ignore")
     status = re.search(r'状态(.*):(.*)\n', cmdlines)
     if status.group().find('断开') != -1:  # WiFi未连接
         software_status = re.search(r'软件(.*)\n', cmdlines)
@@ -36,28 +36,32 @@ def check_wifi_connection():  # 检查WiFi状态
 
 def connect_to_wifi(ssid, password=None):  # 连接至指定ssid和密码的WiFi
     ifprofile = False
-    cmdlines = os.popen('netsh wlan show profiles', 'r', 1).read()
+    rawcmdlines = subprocess.Popen('netsh wlan show profiles', stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    rawcmdlines.wait()
+    cmdlines = rawcmdlines.stdout.read().decode("GBK", "ignore")
     profiles = re.findall(r'(.*): (.*)\n', cmdlines)
     for profile in profiles:  # 检查是否曾经连接过该ssid的WiFi
-        if profile[1] == ssid:
+        if profile[1].rstrip('\r') == ssid:
             ifprofile = True
+            break
     if not ifprofile:  # 未连接过该ssid的WiFi，创建并添加profile
         try:
             f = open('{}.xml', 'r'.format(ssid))
             f.close()
         except IOError:
             create_profile(ssid, password)
-        os.popen('netsh wlan add profile filename=\"{}.xml\"'.format(ssid))
-    os.popen('netsh wlan connect name={0} ssid={0}'.format(ssid))
-    time.sleep(2)
+        subprocess.call('netsh wlan add profile filename=\"{}.xml\"'.format(ssid))
+    subprocess.call('netsh wlan connect name={0} ssid={0}'.format(ssid))
     return
 
 
 def get_wifi_name():  # 获取当前已连接WiFi的ssid
     if check_wifi_connection():
-        cmdlines = os.popen('netsh wlan show interfaces', 'r', 1).read()
+        rawcmdlines = subprocess.Popen('netsh wlan show interfaces', stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        rawcmdlines.wait()
+        cmdlines = rawcmdlines.stdout.read().decode("GBK", "ignore")
         ssid = re.findall(r'SSID(.*): (.*)\n', cmdlines)
-        return ssid[0][1]
+        return ssid[0][1].rstrip('\r')
     else:
         return ''
 
