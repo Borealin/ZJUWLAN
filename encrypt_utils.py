@@ -58,6 +58,6 @@ def decrypt(nonce, ciphertext, tag):  # 解密文本
     key = check_key()
     cipher = AES.new(key, AES.MODE_EAX, nonce)
     data = cipher.decrypt_and_verify(ciphertext, tag)
-    data.rstrip(b' ')
+    data = data.rstrip(b' ')
     data = str(data, 'utf-8')
     return data
