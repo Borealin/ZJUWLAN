@@ -12,16 +12,16 @@ def key_init():  # 获取随机16位密钥
 
 
 def read_key():  # 从已有的文件中获取密钥
-    f = open(key_file, 'rb')
-    key = pickle.load(f)
-    f.close()
+    kf = open(key_file, 'rb')
+    key = pickle.load(kf)
+    kf.close()
     return key
 
 
 def write_key(key):  # 写入密钥
-    f = open(key_file, 'wb')
-    pickle.dump(key, f)
-    f.close()
+    kf = open(key_file, 'wb')
+    pickle.dump(key, kf)
+    kf.close()
 
 
 def get_key():  # 获取密钥
@@ -40,7 +40,7 @@ def check_key():  # 检查并获取密钥
     except IOError:
         print('config密钥丢失，请重新输入信息')
         storage_utils.build_config()
-        return check_key()
+        return False
 
 
 def encrypt(data):  # 加密文本
@@ -56,6 +56,8 @@ def encrypt(data):  # 加密文本
 
 def decrypt(nonce, ciphertext, tag):  # 解密文本
     key = check_key()
+    if not key:
+        return False
     cipher = AES.new(key, AES.MODE_EAX, nonce)
     data = cipher.decrypt_and_verify(ciphertext, tag)
     data = data.rstrip(b' ')

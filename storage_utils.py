@@ -22,10 +22,12 @@ def check_storage():  # 检查是否储存过学号及密码
 
 
 def read_config():  # 读取已储存的学号密码密钥
-    f = open('config', 'rb')
-    nonce, ciphertext, tag = [f.read(x) for x in (16, 64, -1)]
-    f.close()
+    rf = open('config', 'rb')
+    nonce, ciphertext, tag = [rf.read(x) for x in (16, 64, -1)]
+    rf.close()
     data = encrypt_utils.decrypt(nonce, ciphertext, tag)
+    if not data:
+        return read_config()
     name, password = data.split(split_text)
     return {
         'name': name,
@@ -36,8 +38,8 @@ def read_config():  # 读取已储存的学号密码密钥
 def build_config():  # 建立并储存学号密码密钥
     name, password = enter_id_pass()
     data = name + split_text + password
-    f = open('config', 'wb')
     nonce, ciphertext, tag = encrypt_utils.encrypt(data)
+    f = open('config', 'wb')
     [f.write(x) for x in (nonce, ciphertext, tag)]
     f.close()
 
