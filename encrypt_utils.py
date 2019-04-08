@@ -1,5 +1,6 @@
 from Crypto.Cipher import AES
 from Crypto.Random import get_random_bytes
+import storage_utils
 import pickle
 
 key_file = 'key'
@@ -23,7 +24,7 @@ def write_key(key):
     f.close()
 
 
-def check_key():
+def get_key():
     try:
         key = read_key()
     except IOError:
@@ -32,8 +33,18 @@ def check_key():
     return key
 
 
+def check_key():
+    try:
+        key = read_key()
+        return key
+    except IOError:
+        print('config密钥丢失，请重新输入信息')
+        storage_utils.build_config()
+        return check_key()
+
+
 def encrypt(data):
-    key = check_key()
+    key = get_key()
     data = bytes(data, 'utf-8')
     while len(data) % 64 != 0:
         data += b' '

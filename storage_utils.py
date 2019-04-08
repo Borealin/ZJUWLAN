@@ -1,4 +1,6 @@
 # -*- coding:utf-8 -*-
+import os
+
 import encrypt_utils
 
 split_text = '+-*/bor/*-+'
@@ -14,7 +16,7 @@ def get_auth():
 
 def check_storage():
     try:
-        f = open('config', 'r')
+        f = open('config', 'rb')
         f.close()
     except IOError:
         return False
