@@ -56,7 +56,7 @@ def connect_to_wifi(ssid, password=None):  # 连接至指定ssid和密码的WiFi
     add_wifi = subprocess.Popen('netsh wlan connect name={0} ssid={0}'.format(ssid), stdout=subprocess.PIPE,
                                 stderr=subprocess.STDOUT)
     add_wifi.wait()
-    time.sleep(5)  # 等待系统连接上ZJUWLAN
+    time.sleep(2)  # 等待系统连接上WiFi
     return
 
 
